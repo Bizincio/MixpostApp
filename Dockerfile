@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
     nginx \
     supervisor \
     ffmpeg \
+    redis-server \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
 # Install Composer (the tool that downloads PHP's building blocks)
