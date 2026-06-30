@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Start Redis
+redis-server --daemonize yes
+
 # Wait a moment for everything to be ready
 sleep 2
 
