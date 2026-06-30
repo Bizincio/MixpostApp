@@ -14,7 +14,12 @@ RUN apt-get update && apt-get install -y \
     supervisor \
     ffmpeg \
     redis-server \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+    autoconf \
+    gcc \
+    make \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && pecl install redis \
+    && docker-php-ext-enable redis
 
 # Install Composer (the tool that downloads PHP's building blocks)
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
