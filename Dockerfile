@@ -33,10 +33,11 @@ COPY . .
 # Download all the PHP packages Mixpost needs
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Set correct file permissions
-RUN chmod -R 755 public && \
-    chmod -R 775 storage && \
-    chmod -R 775 bootstrap/cache
+# Set correct file ownership and permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 public \
+    && chmod -R 775 storage \
+    && chmod -R 775 bootstrap/cache
 
 # Copy in our custom startup script and nginx config
 COPY docker/start.sh /start.sh
