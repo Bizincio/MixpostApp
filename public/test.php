@@ -15,43 +15,24 @@ try {
         PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
     ];
     $pdo = new PDO($dsn, $user, $pass, $options);
-    echo "Connected OK\n";
+    echo "Connected OK\n\n";
     
-    // Check if admin already exists
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
-    $stmt->execute(['admin@bizinc.io']);
-    $exists = $stmt->fetchColumn();
-    
-    if ($exists > 0) {
-        echo "Admin user already exists!\n";
-    } else {
-        // Password: Bizinc@Admin2026
-        $hashedPassword = password_hash('Bizinc@Admin2026', PASSWORD_BCRYPT, ['cost' => 12]);
-        
-        $stmt = $pdo->prepare("
-            INSERT INTO users (name, email, email_verified_at, password, created_at, updated_at)
-            VALUES (?, ?, NOW(), ?, NOW(), NOW())
-        ");
-        $stmt->execute([
-            'Bizinc Admin',
-            'admin@bizinc.io',
-            $hashedPassword
-        ]);
-        
-        echo "Admin user created successfully!\n";
-        echo "Email: admin@bizinc.io\n";
-        echo "Password: Bizinc@Admin2026\n";
+    // Show ALL tables
+    echo "=== ALL TABLES ===\n";
+    $stmt = $pdo->query("SHOW TABLES");
+    $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    echo "Total tables: " . count($tables) . "\n";
+    foreach ($tables as $table) {
+        $count = $pdo->query("SELECT COUNT(*) FROM `$table`")->fetchColumn();
+        echo "  - $table ($count rows)\n";
     }
     
-    // Verify
-    $stmt = $pdo->query("SELECT id, name, email, created_at FROM users");
-    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    echo "\n=== USERS IN DATABASE ===\n";
-    foreach ($users as $u) {
-        echo "ID: " . $u['id'] . "\n";
-        echo "Name: " . $u['name'] . "\n";
-        echo "Email: " . $u['email'] . "\n";
-        echo "Created: " . $u['created_at'] . "\n";
+    // Check migrations table to see what ran
+    echo "\n=== MIGRATIONS THAT RAN ===\n";
+    $stmt = $pdo->query("SELECT migration FROM migrations ORDER BY id");
+    $migrations = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    foreach ($migrations as $m) {
+        echo "  $m\n";
     }
     
 } catch (Exception $e) {
