@@ -19,29 +19,28 @@ try {
     
     // Check if admin already exists
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
-    $stmt->execute(['admin@globifye.com']);
+    $stmt->execute(['admin@bizinc.io']);
     $exists = $stmt->fetchColumn();
     
     if ($exists > 0) {
         echo "Admin user already exists!\n";
     } else {
-        // Create admin user
-        // Password is: GlobiFYE@Admin2024
-        $hashedPassword = password_hash('GlobiFYE@Admin2024', PASSWORD_BCRYPT, ['cost' => 12]);
+        // Password: Bizinc@Admin2026
+        $hashedPassword = password_hash('Bizinc@Admin2026', PASSWORD_BCRYPT, ['cost' => 12]);
         
         $stmt = $pdo->prepare("
             INSERT INTO users (name, email, email_verified_at, password, created_at, updated_at)
             VALUES (?, ?, NOW(), ?, NOW(), NOW())
         ");
         $stmt->execute([
-            'GlobiFYE Admin',
-            'admin@globifye.com',
+            'Bizinc Admin',
+            'admin@bizinc.io',
             $hashedPassword
         ]);
         
         echo "Admin user created successfully!\n";
-        echo "Email: admin@globifye.com\n";
-        echo "Password: GlobiFYE@Admin2024\n";
+        echo "Email: admin@bizinc.io\n";
+        echo "Password: Bizinc@Admin2026\n";
     }
     
     // Verify
