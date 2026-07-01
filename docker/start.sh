@@ -1,22 +1,34 @@
 #!/bin/bash
 
-# Start Redis
+# Start Redis first
 redis-server --daemonize yes
 
-# Wait a moment for everything to be ready
+# Wait for Redis to be ready
 sleep 2
 
-# Run database migrations (creates Mixpost's tables)
+# Clear any corrupted cached config from previous runs
+php artisan config:clear
+php artisan cache:clear
+php artisan view:clear
+php artisan route:clear
+
+# Run database migrations
 php artisan migrate --force
 
-# Cache config for speed
+# Re-cache everything fresh
 php artisan optimize
 
-# Start PHP-FPM in the background
+# Fix permissions after cache regeneration
+chown -R www-data:www-data /var/www/html/storage
+chown -R www-data:www-data /var/www/html/bootstrap/cache
+chmod -R 775 /var/www/html/storage
+chmod -R 775 /var/www/html/bootstrap/cache
+
+# Start PHP-FPM in background
 php-fpm -D
 
-# Start Horizon (the queue worker) in the background
+# Start Horizon queue worker in background
 php artisan horizon &
 
-# Start Nginx in the foreground (keeps the container alive)
+# Start Nginx in foreground (keeps container alive)
 nginx -g "daemon off;"
