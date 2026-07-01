@@ -12,8 +12,9 @@ php artisan cache:clear
 php artisan view:clear
 php artisan route:clear
 
-# Run database migrations
+# Run database migrations and seed default admin user
 php artisan migrate --force
+php artisan db:seed --force
 
 # Re-cache everything fresh
 php artisan optimize
