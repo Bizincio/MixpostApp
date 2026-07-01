@@ -12,9 +12,10 @@ php artisan cache:clear
 php artisan view:clear
 php artisan route:clear
 
-# Run database migrations and seed default admin user
+# Publish and run ALL migrations including Mixpost's own
+php artisan vendor:publish --tag=mixpost-migrations --force
 php artisan migrate --force
-php artisan db:seed --force
+php artisan mixpost:install --force
 
 # Re-cache everything fresh
 php artisan optimize
