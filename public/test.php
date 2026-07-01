@@ -15,23 +15,44 @@ try {
         PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
     ];
     $pdo = new PDO($dsn, $user, $pass, $options);
-    echo "Connected to MySQL OK\n\n";
+    echo "Connected OK\n";
     
-    // Show all tables so we know exact schema
-    echo "=== ALL TABLES IN DATABASE ===\n";
-    $stmt = $pdo->query("SHOW TABLES");
-    $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
-    foreach ($tables as $table) {
-        echo "  - $table\n";
+    // Check if admin already exists
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE email = ?");
+    $stmt->execute(['admin@globifye.com']);
+    $exists = $stmt->fetchColumn();
+    
+    if ($exists > 0) {
+        echo "Admin user already exists!\n";
+    } else {
+        // Create admin user
+        // Password is: GlobiFYE@Admin2024
+        $hashedPassword = password_hash('GlobiFYE@Admin2024', PASSWORD_BCRYPT, ['cost' => 12]);
+        
+        $stmt = $pdo->prepare("
+            INSERT INTO users (name, email, email_verified_at, password, created_at, updated_at)
+            VALUES (?, ?, NOW(), ?, NOW(), NOW())
+        ");
+        $stmt->execute([
+            'GlobiFYE Admin',
+            'admin@globifye.com',
+            $hashedPassword
+        ]);
+        
+        echo "Admin user created successfully!\n";
+        echo "Email: admin@globifye.com\n";
+        echo "Password: GlobiFYE@Admin2024\n";
     }
     
-    // Check users table structure
-    echo "\n=== USERS TABLE STRUCTURE ===\n";
-    $stmt = $pdo->query("DESCRIBE users");
-    $cols = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    foreach ($cols as $col) {
-        echo "  " . $col['Field'] . " (" . $col['Type'] . ")" . 
-             ($col['Null'] === 'NO' ? ' NOT NULL' : '') . "\n";
+    // Verify
+    $stmt = $pdo->query("SELECT id, name, email, created_at FROM users");
+    $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    echo "\n=== USERS IN DATABASE ===\n";
+    foreach ($users as $u) {
+        echo "ID: " . $u['id'] . "\n";
+        echo "Name: " . $u['name'] . "\n";
+        echo "Email: " . $u['email'] . "\n";
+        echo "Created: " . $u['created_at'] . "\n";
     }
     
 } catch (Exception $e) {
